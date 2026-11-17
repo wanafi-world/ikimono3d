@@ -1,3 +1,5 @@
-// Firebase の設定（Firebase コンソールの「プロジェクトの設定」→「マイアプリ」からコピーしたもの）
-// ここが空のあいだは、セーブはこの端末の中だけになります。
-window.FIREBASE_CONFIG = null;
+// Firebase の設定。セーブと協力プレイは Realtime Database（シンガポール）を使う。
+window.FIREBASE_CONFIG = {
+  projectId: "ikimono3d",
+  databaseURL: "https://ikimono3d-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
