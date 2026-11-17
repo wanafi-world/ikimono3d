@@ -152,3 +152,44 @@
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addFamBtn); else addFamBtn();
 })();
+
+// ---------- 新しい版のおしらせと「🔄 更新」 ----------
+(function(){
+  'use strict';
+  const meta = document.querySelector('meta[name="ikimono-build"]');
+  const BUILD = meta ? meta.content : '';
+  let shown = false, newV = '';
+  function saveThenReload(v){
+    try{ window.dispatchEvent(new Event('pagehide')); }catch(e){}
+    try{ document.dispatchEvent(new Event('visibilitychange')); }catch(e){}
+    const b = document.getElementById('ikiUpd'); if(b){ b.textContent = '⏳ 保存して更新しています…'; b.disabled = true; }
+    setTimeout(() => { location.replace(location.pathname + '?v=' + encodeURIComponent(v || Date.now().toString(36))); }, 1800);
+  }
+  window.ikiUpdateNow = () => saveThenReload(newV);
+  function showBtn(){
+    if(shown) return; shown = true;
+    const b = document.createElement('button');
+    b.id = 'ikiUpd'; b.className = 'btn';
+    b.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:95;padding:8px 16px;font-size:16px;background:#7ee06a';
+    b.textContent = '🆕 新しい版があります・タップで更新';
+    b.onclick = () => saveThenReload(newV);
+    document.body.appendChild(b);
+  }
+  async function check(){
+    try{
+      const j = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json());
+      if(j && j.v && BUILD && j.v !== BUILD){ newV = j.v; showBtn(); }
+    }catch(e){}
+  }
+  document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') check(); });
+  setInterval(check, 5 * 60 * 1000);
+  setTimeout(check, 8000);
+  function addUpdBtn(){
+    const sec = document.getElementById('cloudSec'); if(!sec || document.getElementById('updNow')) return;
+    const d = document.createElement('div'); d.style.marginTop = '6px';
+    d.innerHTML = '<button class="btn" id="updNow" style="font-size:14px">🔄 ゲームを更新する（保存してから読みなおす）</button> <small style="color:#6a5a3a">版 ' + BUILD + '</small>';
+    sec.appendChild(d);
+    d.querySelector('#updNow').onclick = () => saveThenReload(newV);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addUpdBtn); else addUpdBtn();
+})();
